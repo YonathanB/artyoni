@@ -6,6 +6,7 @@
 
 To use this theme, choose one of the following options to get started:
 * Download the latest release on Start Bootstrap
+test
 * Fork this repository on GitHub
 
 ## Bugs and Issues
