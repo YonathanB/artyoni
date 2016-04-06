@@ -1,0 +1,24 @@
+
+<div>
+        <!--<pre>{{artYoniAlbum}}</pre>-->
+        <img ng-click="gallery = true; openGallery(artYoniAlbum)"
+             class="img-responsive art-yoni-img" alt=""
+             ng-src="{{artYoniAlbum.images[0].source}}" style="">
+        <div class="portfolio-box-caption ">
+            <div class="portfolio-box-caption-content">
+                <div class="project-category text-faded">
+                </div>
+                <div class="project-name">
+                    {{artYoniAlbum.name}}
+                </div>
+            </div>
+        </div>
+
+        <!--ng-show="opened"-->
+
+                <!-- ngRepeat: i in images -->
+                <!--<div ng-repeat="i in images" >   -->
+                <!--<img ng-class="{'active': index === $index}" ng-click="changeImage($index)" class="">-->
+                <!--</div>&lt;!&ndash; end ngRepeat: i in images &ndash;&gt;   -->
+
+</div>

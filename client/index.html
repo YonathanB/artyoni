@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en"  ng-app="artYoni">
+
+<head>
+    <style>
+        .art-yoni-img{
+            cursor: pointer;
+            border: 1px solid #f05f40;
+        }
+
+        .art-yoni-img:hover{
+            cursor: pointer;
+            border: 3px solid #f05f40;
+        }
+
+        .ng-gallery {
+            width: 100%;
+            height: 100%;
+            display: inline-block;
+        }
+
+        img.ng-thumb {
+            height: 50px;
+            float: left;
+            display: block;
+            cursor: pointer;
+            margin: 2px 2px 0 0;
+        }
+
+        .ng-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            opacity: 0.85;
+            z-index: 9999;
+        }
+
+        .ng-gallery-content {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            text-align: center;
+        }
+
+        .ng-gallery-content > a.close-popup {
+            font-size: 42px;
+            float: right;
+            color: #fff;
+            text-decoration: none;
+            margin: 0 30px 0 0;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            right: 0;
+        }
+
+        .ng-gallery-content > a.nav-left, .ng-gallery-content > a.nav-right {
+            color: #fff;
+            text-decoration: none;
+            font-size: 60px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .ng-gallery-content > a.nav-left {
+            position: fixed;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .ng-gallery-content > a.nav-right {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .ng-gallery-content > img {
+            height: auto;
+            max-height: calc(100% - 150px);
+            max-width: calc(100% - 100px);
+            position: relative;
+            display: block;
+            margin: 0 auto 0 auto;
+            top: 43%;
+            transform: translateY(-50%);
+            -webkit-transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        .ng-gallery-content > img.effect {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0.3;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .ng-gallery-content > span.info-text {
+            color: #fff;
+            display: inline-block;
+            width: 100%;
+            height: 20px;
+            font-weight: bold;
+            text-align: center;
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 100px;
+        }
+
+        .ng-gallery-content > .ng-thumbnails-wrapper {
+            width: 400px;
+            height: 70px;
+            text-align: center;
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            margin-left: auto;
+            margin-right: auto;
+            overflow-x: hidden;
+        }
+
+        .ng-gallery-content > .ng-thumbnails-wrapper > .ng-thumbnails {
+            width: 4000px;
+            height: 70px;
+        }
+
+        .ng-gallery-content > .ng-thumbnails-wrapper > .ng-thumbnails > div > img {
+            width: auto;
+            height: 70px;
+            float: left;
+            margin-right: 10px;
+            cursor: pointer;
+            opacity: 0.6;
+        }
+
+        .ng-gallery-content > .ng-thumbnails-wrapper > .ng-thumbnails > div > img:hover,
+        .ng-gallery-content > .ng-thumbnails-wrapper > .ng-thumbnails > div > img.active {
+            transition: opacity 0.25s ease;
+            opacity: 1;
+        }
+
+        /* Loading - from http://loading.io */
+        uiload {
+            display: inline-block;
+            position: relative;
+        }
+
+        uiload > div {
+            position: relative;
+        }
+
+        @-webkit-keyframes uil-ring-anim {
+            0% {
+                -ms-transform: rotate(0deg);
+                -moz-transform: rotate(0deg);
+                -webkit-transform: rotate(0deg);
+                -o-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+
+            100% {
+                -ms-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -webkit-transform: rotate(360deg);
+                -o-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @-moz-keyframes uil-ring-anim {
+            0% {
+                -ms-transform: rotate(0deg);
+                -moz-transform: rotate(0deg);
+                -webkit-transform: rotate(0deg);
+                -o-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+
+            100% {
+                -ms-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -webkit-transform: rotate(360deg);
+                -o-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @-ms-keyframes uil-ring-anim {
+            0% {
+                -ms-transform: rotate(0deg);
+                -moz-transform: rotate(0deg);
+                -webkit-transform: rotate(0deg);
+                -o-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+
+            100% {
+                -ms-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -webkit-transform: rotate(360deg);
+                -o-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes uil-ring-anim {
+            0% {
+                -ms-transform: rotate(0deg);
+                -moz-transform: rotate(0deg);
+                -webkit-transform: rotate(0deg);
+                -o-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+
+            100% {
+                -ms-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -webkit-transform: rotate(360deg);
+                -o-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        .uil-ring-css {
+            background: none;
+            position: relative;
+            top: 0;
+            margin: 180px auto 0 auto;
+            width: 100px;
+            height: 100px;
+        }
+
+        .uil-ring-css > div {
+            position: absolute;
+            display: block;
+            width: 80px;
+            height: 80px;
+            top: 20px;
+            left: 20px;
+            border-radius: 40px;
+            box-shadow: 0 6px 0 0 #fff;
+            -ms-animation: uil-ring-anim 1s linear infinite;
+            -moz-animation: uil-ring-anim 1s linear infinite;
+            -webkit-animation: uil-ring-anim 1s linear infinite;
+            -o-animation: uil-ring-anim 1s linear infinite;
+            animation: uil-ring-anim 1s linear infinite;
+        }
+    </style>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Art'Yoni Aquarelles, Peintures & Mosaiques en pierre de Mbigou</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="assets/font-awesome/css/font-awesome.min.css" type="text/css">
+
+    <!-- Plugin CSS -->
+    <link rel="stylesheet" href="assets/css/animate.min.css" type="text/css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/creative.css" type="text/css">
+
+    <!--Gallery-->
+    <!--<link rel="stylesheet" type="text/css" href="bower_components/ngGallery/src/css/ngGallery.css">-->
+    <!--<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">-->
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+</head>
+<!--ng-controller="MainCtrl"-->
+<body id="page-top"  ng-controller="MainCtrl">
+
+    <nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand page-scroll" href="#page-top">Art'yoni</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a class="page-scroll" href="#about">About</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#services">Services</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#portfolio">Portfolio</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+    <header>
+        <div class="header-content">
+            <div class="header-content-inner">
+                <h1 style="font-size: 50px; font-family: fantasy;">Original hand works in Mbigou stone</h1>
+                <hr>
+                <p>This gallery presents the hand works of <i>Jackie Benitah</i> in the famous Mbigou stone</p>
+                <!--<a href="#about" class="btn btn-primary btn-xl page-scroll">Find Out More</a>-->
+            </div>
+        </div>
+    </header>
+
+    <section class="bg-primary" id="about">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <h2 class="section-heading">What is the Mbigou stone?</h2>
+                    <hr class="light">
+                    <p class="text-faded">The Mbigou soapstone can be found in Mbigou (Gabon, Africa). Once the stone was used to sculpt idole in it. <i>Jackie</i> has found an other way to valorise it, most of time she use the stone with the spectacular wood that also can be found only in Gabon!</p>
+                    <!--<a href="#" class="btn btn-default btn-xl">The Gallery!</a>-->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="services">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2 class="section-heading">At Your Service</h2>
+                    <hr class="primary">
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 text-center">
+                    <div class="service-box">
+                        <i class="fa fa-4x fa-diamond wow bounceIn text-primary"></i>
+                        <h3>Personal Trinket</h3>
+                        <p class="text-muted">Order personal trinkets for your events. Unforgettable gift for your guests</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 text-center">
+                    <div class="service-box">
+                        <i class="fa fa-4x fa-paper-plane wow bounceIn text-primary" data-wow-delay=".1s"></i>
+                        <h3>Ready to Ship</h3>
+                        <p class="text-muted">Every order will be delivered at your place. We have contacts all over the world</p>
+                    </div>
+                </div>
+                <!--<div class="col-lg-3 col-md-6 text-center">-->
+                    <!--<div class="service-box">-->
+                        <!--<i class="fa fa-4x fa-newspaper-o wow bounceIn text-primary" data-wow-delay=".2s"></i>-->
+                        <!--<h3>Up to Date</h3>-->
+                        <!--<p class="text-muted">We update dependencies to keep things fresh.</p>-->
+                    <!--</div>-->
+                <!--</div>-->
+                <div class="col-lg-4 col-md-6 text-center">
+                    <div class="service-box">
+                        <i class="fa fa-4x fa-heart wow bounceIn text-primary" data-wow-delay=".3s"></i>
+                        <h3>Made with Love</h3>
+                        <p class="text-muted">Each hand works has been done with a lot of love. It is actually not easy for <i>Jackie</i> salling them</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="no-padding" id="portfolio" ng-show="artYoniImages">
+        <div class="container-fluid">
+            <!-- artyoni-gallery="{{artYoniImages}}"-->
+            <div class="row no-gutter" artyoni-gallery>
+                <div class="col-lg-4 col-sm-6 no-padding" ng-repeat="album in artYoniImages"
+                     ng-show="['Aquarelles','Mosaiques', 'Sculptures'].indexOf(album.name) > -1">
+                    <a class="portfolio-box"  artyoni-album="{{album}}" ></a>
+                </div>
+
+                <!--<div class="col-lg-4 col-sm-6">-->
+                    <!--<a href="#" class="portfolio-box">-->
+                        <!--<img src="assets/img/portfolio/boite.jpg" class="img-responsive" alt="">-->
+                        <!--<div class="portfolio-box-caption">-->
+                            <!--<div class="portfolio-box-caption-content">-->
+                                <!--<div class="project-category text-faded">-->
+                                    <!--Jewelry Box-->
+                                <!--</div>-->
+                                <!--<div class="project-name">-->
+                                    <!--Boxes-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</a>-->
+                <!--</div>-->
+
+
+            </div>
+        </div>
+
+
+    </section>
+
+    <aside class="bg-dark" style="margin-top: 1px">
+        <div class="container text-center">
+            <div class="call-to-action">
+                <h2>Attractive deal for ordering through the web site!</h2>
+                <!--<a href="#" class="btn btn-default btn-xl wow tada">Order Now!</a>-->
+            </div>
+        </div>
+    </aside>
+
+    <section id="contact">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <h2 class="section-heading">Let's Get In Touch!</h2>
+                    <hr class="primary">
+                    <p>Want to visit <i>Jackie's</i> gallery in real world? That's great! Give her a call or send her an email and she will get back to you as soon as possible!</p>
+                </div>
+                <div class="col-lg-4 col-lg-offset-2 text-center">
+                    <i class="fa fa-phone fa-3x wow bounceIn"></i>
+                    <p>(241)06-24-30-38</p>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <i class="fa fa-envelope-o fa-3x wow bounceIn" data-wow-delay=".1s"></i>
+                    <p><a href="mailto:your-email@your-domain.com">ronitelbv@yahoo.fr</a></p>
+                </div>
+                <div class="col-lg-4 col-lg-offset-2 text-center">
+                    <i class="fa fa-skype fa-3x wow bounceIn"></i>
+                    <p>ronitelbv</p>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <i class="fa fa-facebook fa-3x wow bounceIn" data-wow-delay=".1s"></i>
+                    <p><a href="https://www.facebook.com/Artyoni" target="_blank">facebook.com/Artyoni</a></p>
+                </div>
+<div  class="col-lg-12 text-center">
+    <div class="fb-like" data-href="https://www.facebook.com/Artyoni" data-layout="standard" data-action="like" data-show-faces="true" data-share="true"></div>
+</div>
+            </div>
+        </div>
+    </section>
+    <div class="footerBottomSection">
+        <div class="container">
+            &copy; 2014, Allright reserved.
+            <!--<a href="#">Terms and Condition</a> | <a href="#">Privacy Policy</a>-->
+        </div>
+    </div>
+    <!-- jQuery -->
+    <script src="assets/js/jquery.js"></script>
+
+    <!--Angular-->
+    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/ng-facebook/ngFacebook.js"></script>
+
+    <!--Gallery-->
+    <!--<script type="text/javascript" src="bower_components/ngGallery/src/js/ngGallery.js"></script>-->
+
+    <script src="app/app.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+
+    <script src="assets/js/bootstrap.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="assets/js/jquery.easing.min.js"></script>
+    <script src="assets/js/jquery.fittext.js"></script>
+    <script src="assets/js/wow.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="assets/js/creative.js"></script>
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/fr_FR/sdk.js#xfbml=1&version=v2.5&appId=254067178113248";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+</body>
+
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html ng-app="loto" dir="rtl">
+<head lang="en">
+
+    <meta charset="UTF-8">
+    <title>LOTO</title>
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css">
+
+</head>
+<body class="container-fluid" ng-controller="mainCtrl">
+<div class="row" style="margin-top: 20px">
+    <div class="col-md-12">
+        <div class="col-md-6" ng-repeat="chart in displayChart track by $index" style="direction: ltr; min-height: 400px"  >
+            <lotto-graph chart-type="{{::chart}}"></lotto-graph>
+        </div>
+    </div>
+</div>
+<div class="row" ng-show="dataLoaded" ng-cloak>
+    <div class="col-xs-12 col-sm-offset-2 col-sm-8 col-lg-offset-3 col-lg-6 ">
+        <button class="btn btn-default " ng-click="updateData()"
+                style="margin-top: 10%; font-size: 24px; text-align: center; width: 100%">
+            <span>עדכן נתונים</span>
+        </button>
+    </div>
+</div>
+<div ng-show="dataLoaded" loading="loading"></div>
+
+</body>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
+<!--Angular-->
+<script src="https://code.angularjs.org/1.5.3/angular.min.js"></script>
+
+<!--Spinner for loading-->
+<script src="http://fgnass.github.io/spin.js/spin.min.js"></script>
+
+<script src="app.js"></script>
+
+<!--highcharts library (for graphs)-->
+<!--<script src="https://code.highcharts.com/highcharts.js"></script>-->
+<!--<script src="https://code.highcharts.com/modules/drilldown.js"></script>-->
+<script src="http://code.highcharts.com/stock/highstock.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<style>
+    [ng\:cloak], [ng-cloak], .ng-cloak {
+        display: none !important;
+    }
+    .icon-right {
+
+        padding: 9px 6px 0px 10px;
+        position: absolute;
+        top: 0;
+        height: 100%;
+        float: right;
+        left: auto;
+        right: 0;
+        background-color: #183A65;
+        color: whitesmoke;
+        border-radius: 0px 5px 5px 0px;
+    }
+
+    .btn-icon {
+        position: relative;
+        padding-right: 39px;
+        padding-left: 35px;
+        color: whitesmoke;
+        background-color: #3F72B1;
+        border-radius: 5px;
+        border: none;
+        margin: 0px;
+        width: 100%;
+        text-align: right;
+        margin: 0px;
+        width: 165px;
+    }
+
+    .btn-icon:focus, .btn-icon:active, .btn-icon:hover {
+        background-color: #2D5588;
+        color: whitesmoke;
+    }
+
+    .dropdown-menu {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .dropdown-menu > li {
+        text-align: right;
+    }
+
+    .dropdown-menu > li > a {
+        cursor: pointer;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    input.form-control {
+        border-radius: 5px 0px 0px 5px;
+    }
+
+    .lotto-chart {
+        direction: ltr;
+    }
+
+    .caret-left {
+        position: absolute;
+        left: 10px;
+        top: 14px;
+    }
+
+    .disabled {
+        color: gray !important;
+
+    }
+
+</style>
+</html>

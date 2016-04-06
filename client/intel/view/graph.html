@@ -1,0 +1,44 @@
+
+<div loading="loading"></div>
+<div class="col-xs-6" >
+    <div class="dropdown" style="float: right" ng-show="dataLoaded">
+        <button class="btn btn-icon filter-button" dropdown-toggle type="button" id="dropdownMenu2"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            <i class="glyphicon glyphicon-filter icon-right"></i> <span>מיין לפי שנים</span>
+            <span class="caret caret-left"></span>
+        </button>
+
+        <ul class=" dropdown-menu " aria-labelledby="dropdownMenu2" style="padding-bottom: 0px; ">
+            <li ng-repeat="year in years track by $index">
+                <a ng-click="updateFilter('byYear', year)" ng-class="{'disabled': filters.byYear.indexOf(year) > -1}"
+                   style="display: inline-table; width: 100%">
+                    <i ng-show="filters.byYear.indexOf(year) > -1" class="glyphicon glyphicon-eye-close"
+                       style="display: inline-table; margin-right: 20px;"></i>
+                    <span style="display: inline-table">{{::year}}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="col-xs-6" ng-show="dataLoaded">
+    <div class="dropdown">
+        <button class="btn btn-icon filter-button" dropdown-toggle type="button" id="dropdownMenu1"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            <i class="glyphicon glyphicon-filter icon-right"></i> <span>מיין לפי מספר</span>
+            <span class="caret caret-left"></span>
+        </button>
+
+        <ul class=" dropdown-menu " aria-labelledby="dropdownMenu1" style="padding-bottom: 0px; ">
+            <li style="text-align: right;" ng-repeat="n in [].constructor(37)  track by $index">
+                <a style="display: inline-table; width: 100%" ng-click="updateFilter('byNumber',$index+1)"
+                   ng-class="{'disabled': filters.byNumber.indexOf($index+1) > -1}">
+                    <i ng-show="filters.byNumber.indexOf($index+1) > -1" class="glyphicon glyphicon-eye-close disabled"
+                       style="display: inline-table; margin-right: 20px;"></i>
+                    <span style="display: inline-table">{{::$index+1}}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="lotto-chart" ng-show="dataLoaded" style="max-height: 500px"></div>
