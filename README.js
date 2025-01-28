@@ -1,3 +1,139 @@
+
+
+
+Non, vous n'êtes pas obligé de passer en RDD pour implémenter cette logique, et il est préférable de rester dans le cadre des DataFrames si vous travaillez avec PySpark. Les DataFrames sont optimisés par le moteur Spark SQL, ce qui améliore les performances grâce à des optimisations comme le Catalyst Optimizer et les exécutions en mémoire distribuées.
+
+Voici comment vous pouvez adapter l'approche pour rester en DataFrame tout en respectant vos besoins :
+
+
+---
+
+Implémentation en DataFrame
+
+Étape 1 : Ordonner les données et calculer les distances, durées, et vitesses
+
+Ajoutez les colonnes nécessaires comme la distance, la durée, et la vitesse en utilisant des fonctions SQL et des fenêtres.
+
+from pyspark.sql import functions as F
+from pyspark.sql.window import Window
+
+# Définir une fonction pour calculer la distance (Haversine)
+def haversine(lat1, lon1, lat2, lon2):
+    from math import radians, sin, cos, sqrt, atan2
+    R = 6371  # Rayon de la Terre en km
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    return 2 * R * atan2(sqrt(a), sqrt(1 - a))
+
+haversine_udf = F.udf(haversine)
+
+# Définir une fenêtre pour les calculs
+window_spec = Window.partitionBy("object_id").orderBy("timestamp")
+
+# Ajouter des colonnes pour les calculs spatio-temporels
+data = data.withColumn("prev_x", F.lag("x").over(window_spec)) \
+           .withColumn("prev_y", F.lag("y").over(window_spec)) \
+           .withColumn("prev_timestamp", F.lag("timestamp").over(window_spec)) \
+           .withColumn("distance", haversine_udf(F.col("prev_x"), F.col("prev_y"), F.col("x"), F.col("y"))) \
+           .withColumn("duration", (F.col("timestamp").cast("long") - F.col("prev_timestamp").cast("long")) / 3600) \
+           .withColumn("speed", F.col("distance") / F.col("duration"))
+
+
+---
+
+Étape 2 : Chargement de la table des transitions valides
+
+Chargez ou générez une table des transitions valides entre les caméras.
+
+# Exemple d'une table des transitions valides entre caméras
+transitions = spark.read.parquet("valid_transitions.parquet")
+
+
+---
+
+Étape 3 : Attribution des clusters
+
+Vous pouvez utiliser une fonction cumulative pour attribuer les clusters directement dans le DataFrame.
+
+# Définir une UDF pour vérifier les transitions valides
+def is_valid_transition(camera_from, camera_to, transitions):
+    # Simulez une recherche dans une table des transitions valides
+    return transitions.filter(
+        (F.col("camera_id_from") == camera_from) & (F.col("camera_id_to") == camera_to)
+    ).count() > 0
+
+is_valid_transition_udf = F.udf(is_valid_transition)
+
+# Ajouter une colonne indiquant si la transition est valide
+data = data.withColumn("valid_transition", 
+                       F.when(F.col("speed") <= 250, True).otherwise(
+                           is_valid_transition_udf(F.lag("camera_id").over(window_spec), 
+                                                   F.col("camera_id"), 
+                                                   transitions)
+                       ))
+
+# Ajouter une colonne de cluster en fonction de la validité des transitions
+data = data.withColumn("cluster", 
+                       F.sum(F.when(~F.col("valid_transition"), 1).otherwise(0))
+                       .over(window_spec))
+
+
+---
+
+Avantages de cette méthode :
+
+1. Performance optimisée : En restant en DataFrame, vous bénéficiez des optimisations Spark, ce qui est crucial pour des données volumineuses.
+
+
+2. Lisibilité : Le code est plus facile à maintenir grâce aux API SQL de PySpark.
+
+
+3. Scalabilité : La logique est distribuée sur le cluster Spark sans retomber sur des opérations RDD non optimisées.
+
+
+
+
+---
+
+Quand utiliser les RDD ?
+
+Les RDD sont utiles pour des cas très spécifiques où :
+
+Vous devez écrire une logique complexe difficile à exprimer avec les API DataFrame.
+
+Vos données ne s'adaptent pas bien à un schéma structuré (par exemple, des objets JSON imbriqués sans structure fixe).
+
+
+Cependant, dans votre cas, rester avec les DataFrames est clairement la meilleure option.
+
+Si vous avez besoin d'une implémentation plus détaillée ou d'un ajustement, faites-le-moi savoir !
+
+
+# Définir une UDF pour vérifier les transitions valides
+def is_valid_transition(camera_from, camera_to, transitions):
+    # Simulez une recherche dans une table des transitions valides
+    return transitions.filter(
+        (F.col("camera_id_from") == camera_from) & (F.col("camera_id_to") == camera_to)
+    ).count() > 0
+
+is_valid_transition_udf = F.udf(is_valid_transition)
+
+# Ajouter une colonne indiquant si la transition est valide
+data = data.withColumn("valid_transition", 
+                       F.when(F.col("speed") <= 250, True).otherwise(
+                           is_valid_transition_udf(F.lag("camera_id").over(window_spec), 
+                                                   F.col("camera_id"), 
+                                                   transitions)
+                       ))
+
+# Ajouter une colonne de cluster en fonction de la validité des transitions
+data = data.withColumn("cluster", 
+                       F.sum(F.when(~F.col("valid_transition"), 1).otherwise(0))
+                       .over(window_spec))
+
+
 Voici un pipeline complet avec la ligne de calcul du delta_time ajoutée. Le delta_time représente l’écart entre system_time (l'heure d'entrée dans le système) et camera_time (l'heure de la photo prise par la caméra).
 
 Code complet en PySpark :
