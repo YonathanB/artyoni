@@ -1,3 +1,42 @@
+
+import pandas as pd
+from pyspark.sql.functions import pandas_udf
+from pyspark.sql.types import IntegerType
+
+# Fonction d'assignation des clusters
+def assign_clusters_pandas(df: pd.DataFrame) -> pd.Series:
+    cluster = 0
+    clusters = []
+    previous_valid_cluster = 0
+
+    for i, row in df.iterrows():
+        if i == 0:  # Premier point
+            clusters.append(cluster)
+        else:
+            if row["speed"] <= 250:  # Vitesse normale
+                clusters.append(cluster)
+            else:
+                if row["valid_transition"]:  # Transition valide
+                    clusters.append(previous_valid_cluster)  # Utiliser le dernier cluster valide
+                else:  # Vitesse excessive et pas de transition valide
+                    cluster += 1
+                    clusters.append(cluster)
+        
+        # Mise à jour du dernier cluster valide
+        if row["valid_transition"]:
+            previous_valid_cluster = clusters[-1]
+
+    return pd.Series(clusters)
+
+# Appliquer la Pandas UDF
+assign_clusters_udf = pandas_udf(assign_clusters_pandas, returnType=IntegerType())
+
+# Application par `object_id`
+data = data.withColumn("cluster", assign_clusters_udf(
+    F.struct("speed", "valid_transition", "camera_id", "prev_camera_id")
+    .over(Window.partitionBy("object_id").orderBy("timestamp"))
+))
+
 from pyspark.sql.types import IntegerType
 
 # Fonction pour attribuer des clusters
