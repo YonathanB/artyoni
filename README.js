@@ -1,4 +1,37 @@
+from pyspark.sql.types import IntegerType
 
+# Fonction pour attribuer des clusters
+def assign_clusters(rows):
+    cluster = 0
+    clusters = []
+    previous_valid_cluster = 0
+
+    for i, row in enumerate(rows):
+        if i == 0:  # Premier point
+            clusters.append(cluster)
+        else:
+            if row["speed"] <= 250:  # Vitesse normale
+                clusters.append(cluster)
+            else:
+                if row["valid_transition"]:  # Transition valide
+                    clusters.append(previous_valid_cluster)  # Utiliser le cluster précédent
+                else:  # Vitesse excessive et pas de transition valide
+                    cluster += 1
+                    clusters.append(cluster)
+        
+        # Mise à jour du dernier cluster valide
+        if row["valid_transition"]:
+            previous_valid_cluster = clusters[-1]
+
+    return clusters
+
+# Appliquer la logique de clustering à chaque object_id
+assign_clusters_udf = F.udf(lambda rows: assign_clusters(rows), IntegerType())
+
+# Regrouper les données pour chaque object_id et appliquer la logique
+data = data.withColumn("cluster", assign_clusters_udf(F.collect_list(F.struct(
+    "speed", "valid_transition", "camera_id", "prev_camera_id"
+)).over(Window.partitionBy("object_id").orderBy("timestamp"))))
 
 
 Non, vous n'êtes pas obligé de passer en RDD pour implémenter cette logique, et il est préférable de rester dans le cadre des DataFrames si vous travaillez avec PySpark. Les DataFrames sont optimisés par le moteur Spark SQL, ce qui améliore les performances grâce à des optimisations comme le Catalyst Optimizer et les exécutions en mémoire distribuées.
