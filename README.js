@@ -1,3 +1,17 @@
+Object.defineProperty(TooltipComponent.prototype, '_onShow', {
+  configurable: true,
+  enumerable: true,
+  value: function() {
+    // Call original _onShow implementation first
+    const tooltipElement = document.querySelector('.mdc-tooltip__surface');
+    if (tooltipElement) {
+      tooltipElement.innerHTML = this.message;
+    }
+  }
+});
+
+
+
 import { Directive, OnDestroy, Renderer2, NgZone } from '@angular/core';
 import { MatTooltip } from '@angular/material/tooltip';
 
